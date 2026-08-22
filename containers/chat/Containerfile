@@ -14,11 +14,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gnupg \
     age \
     wget \
+    build-essential \
     python3 \
     python3-pip \
     python3-venv \
-    nodejs \
-    npm \
     socat \
     bubblewrap \
     podman \
@@ -40,8 +39,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libgbm-dev \
     libasound2t64 \
     fonts-liberation \
-    libu2f-udev \
-    && rm -rf /var/lib/apt/lists/*
+    libu2f-udev && \
+    curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
+    apt-get install -y --no-install-recommends nodejs && \
+    rm -rf /var/lib/apt/lists/*
 
 # Create chat user for rootless Podman (use next available UID/GID).
 RUN groupadd chat && useradd -m -g chat chat
