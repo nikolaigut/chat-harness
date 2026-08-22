@@ -25,6 +25,7 @@ class SecretsManager:
         for k, v in os.environ.items():
             if k.startswith(env_prefix) or k in (
                 "DEVIN_API_KEY",
+                "WINDSURF_API_KEY",
                 "AGY_API_KEY",
                 "ACP_API_KEY",
                 "OPENAI_API_KEY",
