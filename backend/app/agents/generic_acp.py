@@ -1,9 +1,10 @@
-from typing import Any, AsyncIterator
+from collections.abc import AsyncIterator
+from typing import Any
 
 import structlog
 
-from app.agents.base import AgentAdapter, AgentUsage
 from app.agents.acp_client import ACPClient
+from app.agents.base import AgentAdapter, AgentUsage
 
 logger = structlog.get_logger()
 

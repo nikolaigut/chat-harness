@@ -2,9 +2,8 @@ import asyncio
 import json
 import random
 import string
-import subprocess
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -88,7 +87,7 @@ class PodmanManager:
                 "chat_id": chat_id,
                 "status": "running",
                 "image": image,
-                "created_at": datetime.utcnow().isoformat(),
+                "created_at": datetime.now(UTC).replace(tzinfo=None).isoformat(),
             }
             return ContainerState(id=name, name=name, image=image, status="running", running=True)
 

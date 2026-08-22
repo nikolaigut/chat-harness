@@ -119,6 +119,8 @@ async def get_browser_url(chat_id: str):
     chat = await get_database().get_chat(chat_id)
     if not chat:
         raise HTTPException(status_code=404, detail="Chat not found")
+    if not chat.container_id:
+        return {"url": None}
     pm = PodmanManager()
     port = await pm.get_browser_port(chat.container_id)
     if not port:
@@ -135,6 +137,8 @@ async def get_usage(chat_id: str, agent: str = Query(default="devin")):
     chat = await get_database().get_chat(chat_id)
     if not chat:
         raise HTTPException(status_code=404, detail="Chat not found")
+    if not chat.container_id:
+        return {"agent": agent, "remaining": None, "total": None, "model": None}
     router = AgentRouter(chat.container_id)
     usage = await router.check_quota(agent)
     return {

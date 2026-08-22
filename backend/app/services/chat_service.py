@@ -1,13 +1,13 @@
 import random
 import string
-from datetime import datetime
+from collections.abc import AsyncIterator
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, AsyncIterator
 
 import structlog
 
 from app.agents.router import AgentRouter
-from app.db import Chat, Database, Event, get_database
+from app.db import Chat, Event, get_database
 from app.podman import PodmanManager
 from app.services.embeddings import EmbeddingService
 from app.services.retrieval import ContextRetriever
@@ -71,17 +71,18 @@ class ChatService:
         chat = await self.get_chat(chat_id)
         if not chat:
             raise ValueError(f"Chat {chat_id} not found")
+        assert chat.container_id is not None
+        assert chat.workspace_dir is not None
 
         # Ensure container is running.
-        if not await self.podman.is_running(chat.container_id):
-            if chat.container_image:
-                workspace = Path(chat.workspace_dir)
-                container = await self.podman.resume_from_image(
-                    chat_id, chat.container_image, workspace
-                )
-                chat.container_id = container.id
-                chat.status = "running"
-                await self.db.update_chat(chat)
+        if not await self.podman.is_running(chat.container_id) and chat.container_image:
+            workspace = Path(chat.workspace_dir)
+            container = await self.podman.resume_from_image(
+                chat_id, chat.container_image, workspace
+            )
+            chat.container_id = container.id
+            chat.status = "running"
+            await self.db.update_chat(chat)
 
         # Persist user message.
         user_event = Event(
@@ -128,7 +129,7 @@ class ChatService:
             )
             await self.db.add_event(mock_event)
             yield mock_event
-            chat.last_active_at = datetime.utcnow()
+            chat.last_active_at = datetime.now(UTC).replace(tzinfo=None)
             await self.db.update_chat(chat)
             return
 
@@ -159,7 +160,7 @@ class ChatService:
             await self.db.add_event(event)
             yield event
 
-        chat.last_active_at = datetime.utcnow()
+        chat.last_active_at = datetime.now(UTC).replace(tzinfo=None)
         await self.db.update_chat(chat)
 
     def _event_text(self, event: Event) -> str:
@@ -167,10 +168,10 @@ class ChatService:
         return "\n".join(parts)
 
     async def stop_inactive(self) -> None:
-        now = datetime.utcnow()
+        now = datetime.now(UTC).replace(tzinfo=None)
         chats = await self.db.list_chats()
         for chat in chats:
-            if chat.status != "running":
+            if chat.status != "running" or not chat.container_id:
                 continue
             last = chat.last_active_at or chat.created_at
             if (now - last).total_seconds() > self.settings.inactivity_timeout_seconds:

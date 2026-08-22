@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
+from collections.abc import AsyncIterator
 from dataclasses import dataclass
-from typing import Any, AsyncIterator
+from typing import Any
 
 
 @dataclass
@@ -25,3 +26,5 @@ class AgentAdapter(ABC):
         context: list[dict[str, Any]],
     ) -> AsyncIterator[dict[str, Any]]:
         """Yield events from the agent (text, tool calls, reasoning, browser)."""
+        if False:
+            yield {}

@@ -1,9 +1,9 @@
 import datetime
 from collections.abc import AsyncIterator
 from pathlib import Path
-from typing import Any
+from typing import Any, ClassVar
 
-from sqlalchemy import JSON, DateTime, Float, String, Text, func, select
+from sqlalchemy import JSON, DateTime, String, Text, func, select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -11,7 +11,7 @@ from app.settings import Settings, get_settings
 
 
 class Base(DeclarativeBase):
-    type_annotation_map: dict[type, Any] = {dict: JSON}
+    type_annotation_map: ClassVar[dict[type, Any]] = {dict: JSON}
 
 
 class Chat(Base):

@@ -1,29 +1,10 @@
-import importlib
-from typing import Any
+import structlog
 
 from app.agents.base import AgentAdapter, AgentUsage
 from app.agents.devin import DevinAdapter
 from app.settings import get_settings
 
-ADAPTER_REGISTRY: dict[str, type[AgentAdapter]] = {
-    "devin": DevinAdapter,
-    # "agy": AGYAdapter,  # imported lazily below
-    # "acp": GenericACPAdapter,
-}
-
-
-def _load_agy() -> type[AgentAdapter]:
-    from app.agents.agy import AGYAdapter
-    return AGYAdapter
-
-
-def _load_generic() -> type[AgentAdapter]:
-    from app.agents.generic_acp import GenericACPAdapter
-    return GenericACPAdapter
-
-
-ADAPTER_REGISTRY["agy"] = _load_agy
-ADAPTER_REGISTRY["acp"] = _load_generic
+logger = structlog.get_logger()
 
 
 class AgentRouter:
@@ -67,7 +48,8 @@ class AgentRouter:
                 usage = await self.check_quota(candidate)
                 if usage.remaining is None or usage.remaining > 0:
                     return candidate
-            except Exception:
+            except Exception as exc:  # noqa: BLE001
+                logger.warning("agent.quota_check_failed", agent=candidate, error=str(exc))
                 continue
 
         return "devin"

@@ -1,4 +1,3 @@
-from functools import lru_cache
 from typing import Any
 
 import numpy as np
@@ -28,7 +27,7 @@ class EmbeddingService:
                 self.settings.embedding_model,
                 device=self.settings.embedding_device,
             )
-        except Exception:
+        except (ImportError, RuntimeError, OSError):
             # Fallback when sentence-transformers/torch is not installed.
             self._fallback = True
         return self._model

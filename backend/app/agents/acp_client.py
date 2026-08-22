@@ -2,7 +2,8 @@ import asyncio
 import json
 import os
 import uuid
-from typing import Any, AsyncIterator
+from collections.abc import AsyncIterator
+from typing import Any
 
 import structlog
 
@@ -72,7 +73,7 @@ class ACPClient:
             try:
                 self._proc.terminate()
                 await asyncio.wait_for(self._proc.wait(), timeout=5.0)
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 self._proc.kill()
         if self._read_task:
             self._read_task.cancel()
