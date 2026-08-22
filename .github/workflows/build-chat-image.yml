@@ -1,0 +1,21 @@
+name: Build chat agent image
+
+on:
+  push:
+    branches: [master, main]
+    paths:
+      - 'containers/chat/**'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build chat container image
+        run: ./scripts/build-chat-image.sh
+
+      - name: Smoke test
+        run: ./scripts/test-chat-container.sh
