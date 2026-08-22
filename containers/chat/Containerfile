@@ -54,8 +54,9 @@ WORKDIR /home/chat
 # Make sure ~/.local/bin and ~/.local/lib exist for the chat user.
 RUN mkdir -p /home/chat/.local/bin /home/chat/.local/lib /home/chat/.local/share/containers
 
-# Install Devin CLI (interactive installer, but works non-interactively when run with bash).
-RUN curl -fsSL https://cli.devin.ai/install.sh | bash
+# Install Devin CLI. Strip the post-install `devin setup` step because it
+# requires an interactive login; auth happens at runtime via WINDSURF_API_KEY.
+RUN curl -fsSL https://cli.devin.ai/install.sh | sed '/devin setup/d' | bash
 
 # Install AGY ACP adapter.
 RUN npm config set prefix /home/chat/.local && \
