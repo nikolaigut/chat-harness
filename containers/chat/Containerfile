@@ -10,7 +10,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     curl \
     git \
+    openssh-client \
     gnupg \
+    age \
+    wget \
     python3 \
     python3-pip \
     python3-venv \
@@ -20,11 +23,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     bubblewrap \
     podman \
     buildah \
+    skopeo \
     fuse-overlayfs \
     slirp4netns \
     uidmap \
     newuidmap \
     newgidmap \
+    dbus \
+    dbus-x11 \
+    openbox \
     xvfb \
     x11vnc \
     novnc \
@@ -48,27 +55,30 @@ RUN echo "chat:100000:65536" > /etc/subuid && \
 USER chat
 WORKDIR /home/chat
 
-# Install Devin CLI.
+# Make sure ~/.local/bin and ~/.local/lib exist for the chat user.
+RUN mkdir -p /home/chat/.local/bin /home/chat/.local/lib /home/chat/.local/share/containers
+
+# Install Devin CLI (interactive installer, but works non-interactively when run with bash).
 RUN curl -fsSL https://cli.devin.ai/install.sh | bash
 
 # Install AGY ACP adapter.
 RUN npm config set prefix /home/chat/.local && \
     npm install -g agy-acp
 
-# Install Playwright for the agent and browsers.
+# Install Playwright and its Chromium browser for automated browser tests.
 RUN python3 -m pip install --user --break-system-packages \
     playwright \
     requests
 RUN python3 -m playwright install chromium
 
-# Configure rootless Podman inside the container.
-RUN mkdir -p /home/chat/.config/containers /home/chat/.local/share/containers
-COPY storage.conf /home/chat/.config/containers/storage.conf
-COPY registries.conf /home/chat/.config/containers/registries.conf
-COPY libpod.conf /home/chat/.config/containers/libpod.conf
+# Configure rootless Podman inside the container (VFS driver by default).
+RUN mkdir -p /home/chat/.config/containers
+COPY --chown=chat:chat storage.conf /home/chat/.config/containers/storage.conf
+COPY --chown=chat:chat registries.conf /home/chat/.config/containers/registries.conf
+COPY --chown=chat:chat containers.conf /home/chat/.config/containers/containers.conf
 
 # VNC + noVNC runtime script.
-COPY entrypoint.sh /home/chat/entrypoint.sh
+COPY --chown=chat:chat entrypoint.sh /home/chat/entrypoint.sh
 RUN chmod +x /home/chat/entrypoint.sh
 
 EXPOSE 6080
