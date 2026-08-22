@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  postgres:
+    build:
+      context: ../containers/postgres
+      dockerfile: Containerfile
+    container_name: chat-harness-postgres
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - chat-harness-pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: chatharness
+      POSTGRES_PASSWORD: chatharness
+      POSTGRES_DB: chatharness
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U chatharness"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  chat-harness-agent:
+    build:
+      context: ../containers/chat
+      dockerfile: Containerfile
+    image: localhost/chat-harness-agent:latest
+    container_name: chat-harness-agent-template
+    # This service is a template; the backend spawns one container per chat.
+    command: ["tail", "-f", "/dev/null"]
+    profiles:
+      - build
+
+volumes:
+  chat-harness-pgdata:

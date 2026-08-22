@@ -1,0 +1,7 @@
+FROM pgvector/pgvector:pg17
+
+ENV POSTGRES_USER=chatharness
+ENV POSTGRES_PASSWORD=chatharness
+ENV POSTGRES_DB=chatharness
+
+EXPOSE 5432
