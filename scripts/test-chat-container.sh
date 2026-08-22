@@ -33,7 +33,7 @@ done
 echo "Checking installed agents..."
 podman exec "$cid" which devin
 podman exec "$cid" which agy-acp
-podman exec "$cid" python3 -c "import playwright; print(playwright.__version__)"
+podman exec "$cid" python3 -c "from importlib.metadata import version; print(version('playwright'))"
 
 echo "Checking rootless podman inside container..."
 podman exec "$cid" podman --version
