@@ -43,8 +43,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libu2f-udev \
     && rm -rf /var/lib/apt/lists/*
 
-# Create chat user with fixed UID/GID 1000/1000 for rootless Podman.
-RUN groupadd -g 1000 chat && useradd -m -u 1000 -g chat chat
+# Create chat user for rootless Podman (use next available UID/GID).
+RUN groupadd chat && useradd -m -g chat chat
 RUN echo "chat:100000:65536" > /etc/subuid && \
     echo "chat:100000:65536" > /etc/subgid
 
