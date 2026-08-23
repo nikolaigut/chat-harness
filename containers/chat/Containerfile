@@ -45,9 +45,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     rm -rf /var/lib/apt/lists/*
 
 # Create chat user for rootless Podman (use next available UID/GID).
-RUN groupadd chat && useradd -m -g chat chat
-RUN echo "chat:100000:65536" > /etc/subuid && \
-    echo "chat:100000:65536" > /etc/subgid
+RUN groupadd chat && useradd -m -g chat -u 1001 chat
+RUN echo "chat:1003:64534" > /etc/subuid && \
+    echo "chat:1003:64534" > /etc/subgid && \
+    chmod 4755 /usr/bin/newuidmap /usr/bin/newgidmap
 
 USER chat
 WORKDIR /home/chat

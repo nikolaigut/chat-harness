@@ -12,6 +12,13 @@ echo "Starting a short-lived test container..."
 
 cid=$(podman run -d --rm \
   --name chat-harness-test \
+  --userns=keep-id \
+  --cap-add=SYS_ADMIN \
+  --cap-add=SETUID \
+  --cap-add=SETGID \
+  --security-opt seccomp=unconfined \
+  --security-opt apparmor=unconfined \
+  --security-opt unmask=ALL \
   -p 127.0.0.1:6080:6080 \
   localhost/chat-harness-agent:latest)
 
@@ -37,5 +44,6 @@ podman exec "$cid" python3 -c "from importlib.metadata import version; print(ver
 
 echo "Checking rootless podman inside container..."
 podman exec "$cid" podman --version
+podman exec "$cid" timeout 120 podman run --rm alpine echo hi
 
 echo "All checks passed."
