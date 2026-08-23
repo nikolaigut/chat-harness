@@ -10,4 +10,7 @@ fi
 .venv/bin/pip install -e ".[dev]"
 
 export PYTHONPATH=.:$PYTHONPATH
+# uvicorn's default uvloop reloader worker can hang on podman run -d.
+export UVICORN_LOOP=asyncio
+export UVICORN_RELOAD=true
 .venv/bin/python -m app
