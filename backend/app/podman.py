@@ -81,7 +81,7 @@ class PodmanManager:
             "-v",
             f"{workspace}:/workspace:Z",
             "-p",
-            "0:6080",  # novnc; port mapped dynamically
+            "6080",  # novnc; port mapped dynamically
             *env_args,
             image,
         ]
