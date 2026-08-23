@@ -15,7 +15,7 @@ openbox &
 
 # Start VNC server.
 mkdir -p /home/chat/.vnc
-x11vnc -forever -usepw -nopw -display :99 -rfbport 5900 &
+x11vnc -forever -nopw -display :99 -rfbport 5900 &
 
 # Start noVNC WebSocket proxy.
 websockify --web /usr/share/novnc 6080 localhost:5900 &
